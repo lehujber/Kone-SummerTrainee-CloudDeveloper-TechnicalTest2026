@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, Column, Integer, String, Date, delete, insert, select, update
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 from ..models.seashell import SeashellUpdate, SeashellCreate
 
@@ -28,32 +28,41 @@ class DbAccess():
             res = conn.execute(cmd)
 
             row = res.mappings().first()
-            return dict(row) if row else None
+            data = dict(row) if row else None
+
+        return data
 
     async def get_seashell(self, seashell_id: int) -> Optional[dict]:
         with self.engine.begin() as conn:
             cmd = select(SeashellTable).where(SeashellTable.id == seashell_id)
             res = conn.execute(cmd)
             row = res.mappings().first()
-            return dict(row) if row else None
+
+        return dict(row) if row else None
 
     async def list_seashells(self) -> List[dict]:
         with self.engine.begin() as conn:
             cmd = select(SeashellTable)
             res = conn.execute(cmd)
-            return [dict(row) for row in res.mappings().all()]
+            data = [dict(row) for row in res.mappings().all()]
+
+        return data
 
     async def delete_seashell(self, seashell_id: int) -> bool:
         with self.engine.begin() as conn:
             cmd = delete(SeashellTable).where(SeashellTable.id == seashell_id)
             res = conn.execute(cmd)
-            return res.rowcount > 0
+            c = res.rowcount
+
+        return c > 0
 
     async def delete_seashells(self, sheashell_ids: List[int]) -> int:
         with self.engine.begin() as conn:
             cmd = delete(SeashellTable).where(SeashellTable.id.in_(sheashell_ids))
             res = conn.execute(cmd)
-            return res.rowcount
+            c = res.rowcount
+
+        return c
 
     async def update_seashell(self,seashell_id: int, seashell: SeashellUpdate) -> Optional[dict]:
         with self.engine.begin() as conn:
@@ -70,11 +79,11 @@ class DbAccess():
             )
 
             res = conn.execute(cmd)
-            if res.rowcount > 0:
-                row = res.mappings().first()
-                return dict(row) if row else None
-            else:
-                return None
+
+            row = res.mappings().first()
+            data = dict(row) if row else None
+
+        return data
 
 
 

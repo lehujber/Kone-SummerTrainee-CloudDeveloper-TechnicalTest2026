@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 from typing import Optional
 
 class SeashellBase(BaseModel):
-    name: str
-    species: str
+    name: str = Field(..., min_length=1)
+    species: str = Field(..., min_length=1)
     description: Optional[str] = None
     personal_notes: Optional[str] = None
     date_found: Optional[date] = None
