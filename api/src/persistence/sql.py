@@ -30,6 +30,13 @@ class DbAccess():
             row = res.mappings().first()
             return dict(row) if row else None
 
+    async def get_seashell(self, seashell_id: int) -> Optional[dict]:
+        with self.engine.begin() as conn:
+            cmd = select(SeashellTable).where(SeashellTable.id == seashell_id)
+            res = conn.execute(cmd)
+            row = res.mappings().first()
+            return dict(row) if row else None
+
     async def list_seashells(self) -> List[dict]:
         with self.engine.begin() as conn:
             cmd = select(SeashellTable)
@@ -41,6 +48,12 @@ class DbAccess():
             cmd = delete(SeashellTable).where(SeashellTable.id == seashell_id)
             res = conn.execute(cmd)
             return res.rowcount > 0
+
+    async def delete_seashells(self, sheashell_ids: List[int]) -> int:
+        with self.engine.begin() as conn:
+            cmd = delete(SeashellTable).where(SeashellTable.id.in_(sheashell_ids))
+            res = conn.execute(cmd)
+            return res.rowcount
 
     async def update_seashell(self,seashell_id: int, seashell: SeashellUpdate) -> Optional[dict]:
         with self.engine.begin() as conn:

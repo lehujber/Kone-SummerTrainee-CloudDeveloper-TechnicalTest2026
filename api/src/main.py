@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Response, status
 
+from typing import List
+
 from .models.seashell import SeashellCreate, SeashellUpdate
 from .persistence.sql import DbAccess
 
@@ -29,10 +31,11 @@ async def create_seashell(seashell: SeashellCreate):
         logger.debug(f"Seashell created with ID: {created['id']}")
         return  created
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error creating seashell: {str(e)}")
         raise HTTPException(status_code=500, detail="Error creating seashell")
-
 
 @app.delete("/seashells/{seashell_id}")
 async def delete_seashell(seashell_id: int):
@@ -52,6 +55,18 @@ async def delete_seashell(seashell_id: int):
         logger.error(f"Error deleting seashell: {str(e)}")
         raise HTTPException(status_code=500, detail="Error deleting seashell")
 
+@app.delete("/seashells/")
+async def delete_seashells(seashell_ids: List[int]):
+    """Deletes multiple seashell entries by their IDs"""
+    logger.debug(f"Deleting seashells with IDs: {seashell_ids}")
+    try:
+        deleted_count = await db.delete_seashells(seashell_ids)
+        logger.debug(f"Deleted {deleted_count} seashells")
+        return {"deleted_count": deleted_count}
+    except Exception as e:
+        logger.error(f"Error deleting seashells: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error deleting seashells")
+
 @app.put("/seashells/{seashell_id}")
 async def update_seashell(seashell_id: int, seashell: SeashellUpdate):
     """Updates a seashell entry by ID"""
@@ -64,9 +79,28 @@ async def update_seashell(seashell_id: int, seashell: SeashellUpdate):
         
         logger.debug(f"Seashell with ID {seashell_id} updated")
         return updated
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error updating seashell: {str(e)}")
         raise HTTPException(status_code=500, detail="Error updating seashell")
+
+@app.get("/seashells/{seashell_id}")
+async def get_seashell(seashell_id: int):
+    """Retrieves a seashell entry by ID"""
+    logger.debug(f"Retrieving seashell with ID: {seashell_id}")
+    try:
+        seashell = await db.get_seashell(seashell_id)
+        if not seashell:
+            raise HTTPException(status_code=404, detail="Seashell not found")
+        
+        logger.debug(f"Seashell retrieved: {json.dumps(seashell, indent=2, default=str)}")
+        return seashell
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving seashell: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error retrieving seashell")
 
 @app.get("/seashells/")
 async def list_seashells():
@@ -76,6 +110,8 @@ async def list_seashells():
         seashells = await db.list_seashells()
         logger.debug(f"Retrieved {len(seashells)} seashells")
         return  seashells
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error listing seashells: {str(e)}")
         raise HTTPException(status_code=500, detail="Error listing seashells")
