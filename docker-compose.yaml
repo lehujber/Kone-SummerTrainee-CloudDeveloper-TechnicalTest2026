@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: api
+      dockerfile: Dockerfile
+    container_name: seashell-api
+    ports:
+      - "8080:8080"
+    environment:
+      - DEBUG_MODE=true
+      - DATABASE_URI=postgresql://seashell-admin:secret@db:5432/seashelldb
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: seashell-db
+    environment:
+      POSTGRES_USER: seashell-admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: seashelldb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U seashell-admin -d seashelldb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  flyway:
+    image: flyway/flyway:12.0-alpine
+    container_name: seashell-db-migration
+    depends_on:
+      - db
+    command: [ "-url=jdbc:postgresql://db:5432/seashelldb", "-user=seashell-admin", "-password=secret", "-locations=filesystem:/flyway/sql", "migrate" ]
+    volumes:
+      - ./database_migrations:/flyway/sql:ro
+    restart: on-failure
+
+volumes:
+  pgdata:

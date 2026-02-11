@@ -12,8 +12,5 @@ class SeashellBase(BaseModel):
 class SeashellCreate(SeashellBase):
     pass
 
-class Seashell(SeashellBase):
-    id: int
-
-    class Config:
-        from_attributes = True
+class SeashellUpdate(SeashellBase):
+    pass

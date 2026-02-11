@@ -1,7 +1,7 @@
 from os import getenv
 from logging import getLogger
 
-DB_URI = getenv("DB_URI", "sqlite:///./seashells.db")
+DATABASE_URI = getenv("DATABASE_URI", "sqlite:///./seashells.db")
 
 DEBUG_MODE = getenv("DEBUG_MODE", "false").lower() == "true"
 
