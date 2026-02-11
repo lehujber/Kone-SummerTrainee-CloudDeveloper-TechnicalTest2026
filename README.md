@@ -28,11 +28,11 @@ Another key type is a seashell with an id attached, which is the same as SEASHEL
 ```json
     {
         "id": int,
-        "name": "Golden Lion Pawasdfasdf",
-        "species": "Lyropecten nodosus",
-        "description": "A heavy, thick-shelled scallop with large nodes on the ribs. Bright orange to purplish color.",
-        "personal_notes": "Anna spotted this one half-buried in the sand at Low Tide Beach. It's the highlight of our collection so far!",
-        "date_found": "2026-02-21"
+        "name": string,
+        "species": string,
+        "description": string,
+        "personal_notes": string,
+        "date_found": date <YYYY-MM-DD>
     }
 ```
 Example:
