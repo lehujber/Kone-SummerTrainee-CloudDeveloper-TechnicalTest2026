@@ -9,11 +9,4 @@ CREATE TABLE seashells (
   personal_notes TEXT,
   date_found DATE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  owner_id INTEGER
-);
-
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  username TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL
 );
